@@ -2,8 +2,11 @@ from flask import Flask
 from config import Config
 from extensions import db, jwt
 from routes import note_bp
+from flask_cors import CORS
+
 
 app = Flask(__name__)
+CORS(app, supports_credentials=True)
 app.config.from_object(Config)
 
 db.init_app(app)
