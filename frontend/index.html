@@ -2,33 +2,37 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Note App</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    section { margin-bottom: 30px; }
+    input, button { margin: 5px; }
+  </style>
 </head>
 <body>
-  <h1>Note App</h1>
+  <h1>Note Taking App</h1>
 
-  <div id="auth">
+  <section id="auth">
     <h2>Register</h2>
-    <input id="reg-username" placeholder="Username" />
-    <input id="reg-password" type="password" placeholder="Password" />
-    <button onclick="register()">Register</button>
+    <input type="text" id="registerUsername" placeholder="Username" />
+    <input type="password" id="registerPassword" placeholder="Password" />
+    <button id="registerBtn">Register</button>
 
     <h2>Login</h2>
-    <input id="login-username" placeholder="Username" />
-    <input id="login-password" type="password" placeholder="Password" />
-    <button onclick="login()">Login</button>
-  </div>
+    <input type="text" id="loginUsername" placeholder="Username" />
+    <input type="password" id="loginPassword" placeholder="Password" />
+    <button id="loginBtn">Login</button>
+  </section>
 
-  <div id="notes-section" style="display:none;">
-    <h2>Your Notes</h2>
-    <div id="notes"></div>
+  <section id="notes" style="display:none;">
+    <h2>Create Note</h2>
+    <input type="text" id="noteTitle" placeholder="Title" />
+    <input type="text" id="noteContent" placeholder="Content" />
+    <button id="createNoteBtn">Create Note</button>
 
-    <h3>Add Note</h3>
-    <input id="new-title" placeholder="Title" />
-    <input id="new-content" placeholder="Content" />
-    <button onclick="createNote()">Add Note</button>
-  </div>
+    <h3>Your Notes</h3>
+    <ul id="notesList"></ul>
+  </section>
 
   <script src="app.js"></script>
 </body>

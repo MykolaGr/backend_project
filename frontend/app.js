@@ -1,103 +1,80 @@
-const userServiceURL = "http://127.0.0.1:5000/users";
-const noteServiceURL = "http://127.0.0.1:5001/notes";
+// Base URLs
+const USER_SERVICE_URL = "http://127.0.0.1:5000/users";
+const NOTE_SERVICE_URL = "http://127.0.0.1:5001/notes";
 
-let token = "";
+// Register
+const registerBtn = document.getElementById("registerBtn");
+registerBtn.addEventListener("click", async () => {
+    const username = document.getElementById("registerUsername").value;
+    const password = document.getElementById("registerPassword").value;
 
-function register() {
-    const username = document.getElementById("reg-username").value;
-    const password = document.getElementById("reg-password").value;
-
-    fetch(`${userServiceURL}/register`, {
+    const res = await fetch(`${USER_SERVICE_URL}/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password }),
-    })
-        .then(res => res.json())
-        .then(data => alert(data.message || data.error));
-}
+        body: JSON.stringify({ username, password })
+    });
 
-function login() {
-    const username = document.getElementById("login-username").value;
-    const password = document.getElementById("login-password").value;
+    const data = await res.json();
+    alert(data.message || data.error);
+});
 
-    fetch(`${userServiceURL}/login`, {
+// Login
+const loginBtn = document.getElementById("loginBtn");
+loginBtn.addEventListener("click", async () => {
+    const username = document.getElementById("loginUsername").value;
+    const password = document.getElementById("loginPassword").value;
+
+    const res = await fetch(`${USER_SERVICE_URL}/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password }),
-    })
-        .then(res => res.json())
-        .then(data => {
-            if (data.access_token) {
-                token = data.access_token;
-                document.getElementById("auth").style.display = "none";
-                document.getElementById("notes-section").style.display = "block";
-                loadNotes();
-            } else {
-                alert(data.error || "Login failed");
-            }
-        });
-}
+        body: JSON.stringify({ username, password })
+    });
 
-function loadNotes() {
-    fetch(`${noteServiceURL}`, {
-        headers: { Authorization: `Bearer ${token}` },
-    })
-        .then(res => res.json())
-        .then(data => {
-            const notesDiv = document.getElementById("notes");
-            notesDiv.innerHTML = "";
-            data.forEach(note => {
-                notesDiv.innerHTML += `
-          <div>
-            <h4>${note.title}</h4>
-            <p>${note.content}</p>
-            <button onclick="deleteNote(${note.id})">Delete</button>
-            <button onclick="editNotePrompt(${note.id}, '${note.title}', '${note.content}')">Edit</button>
-          </div>
-        `;
-            });
-        });
-}
+    const data = await res.json();
+    if (data.access_token) {
+        localStorage.setItem("token", data.access_token);
+        document.getElementById("auth").style.display = "none";
+        document.getElementById("notes").style.display = "block";
+        loadNotes();
+    } else {
+        alert(data.error || "Login failed");
+    }
+});
 
-function createNote() {
-    const title = document.getElementById("new-title").value;
-    const content = document.getElementById("new-content").value;
+// Create Note
+const createNoteBtn = document.getElementById("createNoteBtn");
+createNoteBtn.addEventListener("click", async () => {
+    const title = document.getElementById("noteTitle").value;
+    const content = document.getElementById("noteContent").value;
+    const token = localStorage.getItem("token");
 
-    fetch(`${noteServiceURL}`, {
+    const res = await fetch(`${NOTE_SERVICE_URL}`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${token}`
         },
-        body: JSON.stringify({ title, content }),
-    })
-        .then(res => res.json())
-        .then(() => {
-            loadNotes();
-            document.getElementById("new-title").value = "";
-            document.getElementById("new-content").value = "";
-        });
-}
+        body: JSON.stringify({ title, content })
+    });
 
-function deleteNote(id) {
-    fetch(`${noteServiceURL}/${id}`, {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
-    }).then(() => loadNotes());
-}
+    const data = await res.json();
+    alert(data.message || data.error);
+    loadNotes();
+});
 
-function editNotePrompt(id, currentTitle, currentContent) {
-    const newTitle = prompt("New title:", currentTitle);
-    const newContent = prompt("New content:", currentContent);
+// Load Notes
+async function loadNotes() {
+    const token = localStorage.getItem("token");
+    const res = await fetch(`${NOTE_SERVICE_URL}`, {
+        headers: { Authorization: `Bearer ${token}` }
+    });
 
-    if (newTitle && newContent) {
-        fetch(`${noteServiceURL}/${id}`, {
-            method: "PUT",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify({ title: newTitle, content: newContent }),
-        }).then(() => loadNotes());
-    }
-}
+    const notes = await res.json();
+    const notesList = document.getElementById("notesList");
+    notesList.innerHTML = "";
+    notes.forEach(note => {
+        const li = document.createElement("li");
+        li.innerText = `${note.title}: ${note.content}`;
+        notesList.appendChild(li);
+    });
+} 
